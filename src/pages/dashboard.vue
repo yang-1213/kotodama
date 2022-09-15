@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import WalineClient from '../components/WalineClient.vue'
+// import WalineClient from '../components/WalineClient.vue'
 import { useWaline } from '~/composables/waline'
 import { useAppStore } from '~/stores/app'
 
@@ -23,5 +23,5 @@ useWaline({
     <CommentTable />
   </div>
 
-  <WalineClient m="t-4 auto" />
+  <!-- <WalineClient m="t-4 auto" /> -->
 </template>

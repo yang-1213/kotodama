@@ -47,16 +47,16 @@ const exit = () => {
       <div i-ri-translate />
     </a>
 
-    <router-link
+    <!-- <router-link
       class="icon-btn mx-2"
       active-class="text-blue-500"
       to="/about"
       :title="t('button.about')"
     >
       <div i-ri-file-info-line />
-    </router-link>
+    </router-link> -->
 
-    <a
+    <!-- <a
       class="icon-btn mx-2"
       rel="noreferrer"
       href="https://github.com/YunYouJun/kotodama"
@@ -64,7 +64,7 @@ const exit = () => {
       title="GitHub"
     >
       <div i-ri-github-line />
-    </a>
+    </a> -->
 
     <router-link v-if="token" class="icon-btn mx-2" to="/user">
       <div i-ri-user-line />
