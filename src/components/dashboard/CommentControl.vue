@@ -35,7 +35,7 @@ const isEditing = ref(false)
 
 const previewedHtml = computed(() => {
   return parseMarkdown(
-    props.item.comment,
+    props.item.comment.replaceAll("/emoji/base/",'https://mbsky.tk/emoji/base/'),
   )
 })
 
