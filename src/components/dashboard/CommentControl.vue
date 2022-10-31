@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import dayjs from 'dayjs'
 import { ElMessage } from 'element-plus'
-import { url } from '~/stores/user'
+import { useUserStore } from '~/stores/user'
 
 import type { CommentItem } from '~/api/comment'
 import { deleteComment, updateComment } from '~/api/comment'
@@ -11,6 +11,9 @@ import { parseMarkdown } from '~/utils/markdown'
 const props = defineProps<{
   item: CommentItem
 }>()
+
+const router = useRouter()
+const uStore = useUserStore()
 
 const commentRef = ref()
 const loading = ref(false)
@@ -109,7 +112,11 @@ const controlItems = [
     icon: 'i-ri-reply-line',
     color: 'green',
     onClick: () => {
-      commentStore.curPath = props.item.url
+      router.push({
+        query: {
+          url: props.item.url,
+        },
+      })
       scrollTo(0, document.getElementById('waline-wrapper')?.offsetTop || 0)
     },
   },
@@ -129,7 +136,7 @@ const controlItems = [
       </div>
       <a
         class="inline-flex justify-center items-center text-blue-500"
-        :href="url + item.url"
+        :href="uStore.url + item.url"
         target="_blank"
       >
         <div i-ri-link class="mr-1" />

@@ -1,6 +1,6 @@
 import type { WalineResponse } from './waline'
 import { $axios } from '~/composables/axios'
-import { token } from '~/stores/user'
+import { useUserStore } from '~/stores/user'
 import type { UserInfo } from '~/api/user'
 
 export interface LoginParams {
@@ -20,8 +20,15 @@ export interface TokenData {
   url: string
 }
 
+/**
+ * set bearer token authorization for axios
+ * @param token
+ */
 export async function setAuthorization(token: string) {
-  ($axios.defaults.headers as any).Authorization = `Bearer ${token}`
+  if (token)
+    ($axios.defaults.headers as any).Authorization = `Bearer ${token}`
+  else
+    delete ($axios.defaults.headers as any).Authorization
 }
 
 /**
@@ -35,15 +42,15 @@ export async function login(payload: LoginParams, remember = true) {
     const resToken = res.data.token
     setAuthorization(resToken)
 
-    if (remember)
-      token.value = resToken
-
     if (window.opener) {
       window.opener.postMessage(
         { type: 'userInfo', data: { remember, ...res } },
         '*',
       )
     }
+  }
+  else {
+    setAuthorization('')
   }
   return res
 }
@@ -52,7 +59,9 @@ export async function login(payload: LoginParams, remember = true) {
  * 退出
  */
 export function logout() {
-  token.value = ''
+  const uStore = useUserStore()
+  uStore.token = ''
+  setAuthorization('')
 }
 
 export type RegisterParams = Omit<UserInfo, 'github' | 'type'> & { password: string }

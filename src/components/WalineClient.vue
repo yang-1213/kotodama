@@ -1,25 +1,32 @@
 <script lang="ts" setup>
-import { storeToRefs } from 'pinia'
-import { useAppStore } from '~/stores/app'
-import { url } from '~/stores/user'
+// @ts-expect-error vue waline component type
+import { Waline } from '@waline/client/dist/component'
+import { useUserStore } from '~/stores/user'
 
-import { useWaline } from '~/composables/waline'
-import { useCommentStore } from '~/stores/comment'
+import { isDark } from '~/composables'
+import '@waline/client/dist/waline.css'
 
-const app = useAppStore()
-const cStore = useCommentStore()
-const { curPath } = storeToRefs(cStore)
+defineProps<{ path: string }>()
 
-app.waline = useWaline({
-  serverURL: app.serverURL,
-})
+const { locale } = useI18n()
+
+const uStore = useUserStore()
+const route = useRoute()
+const curPath = computed(() => route.query.url?.toString() || '')
+
+const cdnPrefix = 'https://unpkg.com/'
+const emoji = [
+  `${cdnPrefix}@waline/emojis/bilibili`,
+  `${cdnPrefix}@waline/emojis/qq`,
+  `${cdnPrefix}@waline/emojis/weibo`,
+]
 
 // 文章标题
 const title = ref('')
 
-watch(curPath, async (val) => {
+watch(() => curPath.value, async (val) => {
   // 获取链接页面信息，转换为卡片，后续考虑可以封装为一个单独的 NPM 包
-  const data = await fetch(url.value + val).then(res => res.text())
+  const data = await fetch(uStore.url + val).then(res => res.text())
   const domParser = new DOMParser()
   const doc = domParser.parseFromString(data, 'text/html')
 
@@ -28,21 +35,21 @@ watch(curPath, async (val) => {
 </script>
 
 <template>
-  <div id="waline-wrapper" class="el-bg-overlay shadow max-w-800px rounded" m="auto" p="x-2 y-4">
+  <div id="waline-wrapper" class="el-bg-overlay shadow max-w-800px rounded" m="auto" p="4">
     <a
       class="inline-flex flex-col rounded shadow-md transition"
       hover="shadow-xl"
       m="auto t-1s b-3"
       p="2"
-      :href="url + curPath"
+      :href="uStore.url + curPath"
       target="_blank"
     >
       <h2 m="1">{{ title }}</h2>
       <small class="flex justify-center items-center">
         <div i-ri-link class="mr-1" />
-        {{ url + curPath }}
+        {{ uStore.url + curPath }}
       </small>
     </a>
-    <div id="waline" />
+    <Waline :server-u-r-l="uStore.serverURL" :lang="locale" :path="path" :dark="isDark" :emoji="emoji" />
   </div>
 </template>

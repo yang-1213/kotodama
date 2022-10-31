@@ -5,18 +5,17 @@ import { ElMessage } from 'element-plus'
 import { login } from '~/api/auth'
 import { validUsername } from '~/utils/validate'
 import { $axios } from '~/composables/axios'
-import { url } from '~/stores/user'
-import { useAppStore } from '~/stores/app'
+import { useUserStore } from '~/stores/user'
 
 const router = useRouter()
 const { t } = useI18n()
 
-const app = useAppStore()
+const uStore = useUserStore()
 
 const loading = ref(false)
 const loginForm = reactive({
-  serverURL: app.serverURL,
-  email: '',
+  serverURL: uStore.serverURL,
+  email: uStore.email,
   password: '',
 })
 
@@ -57,6 +56,7 @@ onMounted(() => {
 function handleLogin() {
   loginFormEl.value.validate(async (valid: boolean) => {
     if (valid) {
+      uStore.serverURL = loginForm.serverURL
       $axios.defaults.baseURL = loginForm.serverURL
 
       loading.value = true
@@ -67,10 +67,12 @@ function handleLogin() {
           password: loginForm.password,
         }, remember.value)
         if (res && res.data && res.data.token) {
-          // token
-          url.value = res.data.url
+          uStore.url = res.data.url
 
-          app.serverURL = loginForm.serverURL
+          if (remember.value) {
+            uStore.token = res.data.token
+            uStore.email = loginForm.email
+          }
 
           router.push('/dashboard')
           ElMessage.success({
@@ -79,14 +81,14 @@ function handleLogin() {
           })
         }
         else {
-          ElMessage.success({
-            message: res.errmsg,
+          ElMessage.error({
+            message: `${res.errno ? `${res.errno}: ` : ''}${res.errmsg || '未知错误'}`,
             showClose: true,
           })
         }
       }
       catch {
-        // token.value = ''
+        uStore.token = ''
       }
 
       loading.value = false
