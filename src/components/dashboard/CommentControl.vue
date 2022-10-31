@@ -37,9 +37,7 @@ const triggerDeleteComment = async (id: string) => {
 const isEditing = ref(false)
 
 const previewedHtml = computed(() => {
-  return parseMarkdown(
-    props.item.comment.replaceAll("/emoji/base/",'https://mbsky.tk/emoji/base/'),
-  )
+  return parseMarkdown(props.item.comment)
 })
 
 watch(() => props.item, () => {
